@@ -62,26 +62,4 @@ directory '/etc/nginx/sites-enabled' do
   action :create
 end
 
-directory '/etc/nginx/ssl' do
-  action :create
-end
-
-node['apps'].each do |key, app_info|
-  data_bag = data_bag_item(key, 'nginx')
-
-  file "/etc/nginx/ssl/#{key}.crt" do
-    content data_bag['ssl']['crt']
-  end
-
-  file "/etc/nginx/ssl/#{key}.key" do
-    content data_bag['ssl']['key']
-  end
-end
-
-# dhparam
-execute "openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048 > /dev/null 2>&1" do
-  only_if { !::File.exist?('/etc/nginx/ssl/dhparam.pem') }
-end
-
-
 include_recipe('monit::nginx') if node.recipe?('monit')

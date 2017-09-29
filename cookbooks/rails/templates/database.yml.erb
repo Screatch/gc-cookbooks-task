@@ -1,0 +1,12 @@
+<% @databases.each do |database| %>
+
+<%= database['name'] %>:
+  adapter: <%= database['adapter'] %>
+  host: <%= database['host'] %>
+  username: <%= database['username'] %>
+  password: <%= database['password'] %>
+  database: <%= database['database'] %>
+  encoding: <%= database['encoding'] %>
+  pool: <%= database['pool'] %>
+  reconnect: true
+<% end %>

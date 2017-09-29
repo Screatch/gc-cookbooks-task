@@ -1,0 +1,58 @@
+upstream <%= @appname %> {
+    server unix:<%= @deploy_to %>/shared/sockets/unicorn.socket fail_timeout=0;
+}
+
+server {
+    listen                      80 default_server;
+    listen                      [::]:80 default_server;
+    listen                      443 ssl default_server http2;
+
+    server_name                 <%= @domains.join(" ") %> <%= node[:hostname] %>;
+
+    root                        <%= @deploy_to %>/current/public;
+    access_log                  /var/log/nginx/<%= @appname %>_access.log main;
+    error_log                   /var/log/nginx/<%= @appname %>_error.log debug;
+
+    keepalive_timeout           60;
+    try_files                   $uri @<%= @appname %>;
+    client_max_body_size 50M;
+
+    location @<%= @appname %> {
+        proxy_pass                      http://<%= @appname %>;
+        proxy_redirect                  off;
+        proxy_set_header                Host                            $host;
+        proxy_set_header                X-Real-IP                       $remote_addr;
+        proxy_set_header                X-Forwarded-For                 $proxy_add_x_forwarded_for;
+        proxy_set_header                X-Forwarded-Proto               $scheme;
+
+        client_max_body_size            10m;
+        client_body_buffer_size         128k;
+
+        proxy_connect_timeout           90;
+        proxy_send_timeout              90;
+        proxy_read_timeout              90;
+
+        proxy_buffer_size               4k;
+        proxy_buffers                   4 32k;
+        proxy_busy_buffers_size         64k;
+        proxy_temp_file_write_size      64k;
+    }
+
+    location ~ ^/(assets)/ {
+        gzip_static on;
+        expires max;
+        add_header Cache-Control public;
+    }
+
+    location = /favicon.ico {
+        expires max;
+        add_header Cache-Control public;
+    }
+
+    location = /robots.txt {
+        expires max;
+        add_header Cache-Control public;
+    }
+
+    error_page 500 504 /500.html;
+}

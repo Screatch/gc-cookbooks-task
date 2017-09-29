@@ -1,72 +1,65 @@
 {
-  "name": "vagrant",
-  "chef_type": "role",
-  "json_class": "Chef::Role",
-  "description": "vagrant instance, responsible for deploying a vm for a developer",
-  "override_attributes": {
-    "box_name": "vagrant",
-    "ruby": {
-      "version": "2.3.3"
-    },
-    "rails_env": "development",
-    "app_settings": {
-    	"deploy_user": "deploy",
-    	"deploy_group": "deploy",
-        "git": {
-          "repo": "git@code.perfectline.co:shoperb/shoperb.git",
-          "branch": "master"
-        },
-	    "database": 
-	      {
-	        "name": "development",
-	        "adapter": "postgresql",
-	        "pool": 30,
-	        "host": "localhost",
-	        "encoding": "utf-8",
-	        "database": "shoperb_development",
-	        "username": "postgres",
-	        "password": "password"
-	      }
-	  },
-        "secrets": {
-          "secret": "1F12aA6f2VOy7n0qMa13523HJ35tjKJejkh%Jeg1tGe4V",
-          "secret_key_base": "G23Jns5GvJlPkGn27VasAAsF1BzTbdfwtHSgl"
-        },
-        "unicorn": {
-          "worker_processes": 4,
-          "timeout": 240
-        },
-        "nginx": {
-          "ssl": {
-            "enabled": true,
-            "crt": "",
-            "key": ""
-          }
-        }
-    },
-    "symlinks": {
-      "bin": "bin",
-      "log": "log",
-      "pids": "tmp/pids",
-      "sockets": "tmp/sockets",
-      "cache": "tmp/cache",
-      "vendor/bundle": "vendor/bundle",
-      "system": "public/system",
-      "assets": "public/assets",
-      "uploads": "public/uploads",
-    },
-    "symlinks_before_migrate": {
-      "config/database.yml": "config/database.yml",
-    },
-  },
-  "default_attributes": {},
-  "run_list": [
-    "recipe[base]",
-    "recipe[monit]",
-    "recipe[nginx]",
-    "recipe[ruby]",
-    "recipe[postgresql::server]",
-    "recipe[unicorn]",
-    "recipe[rails::deploy]"
-  ]
+	"name": "vagrant",
+	"chef_type": "role",
+	"json_class": "Chef::Role",
+	"description": "vagrant instance, responsible for deploying a vm for a developer",
+	"override_attributes": {
+		"box_name": "vagrant",
+		"ruby": {
+			"version": "2.3.3"
+		},
+		"rails_env": "development",
+		"app_settings": {
+			"name": "test-app",
+			"deploy_user": "deploy",
+			"deploy_group": "deploy",
+			"git": {
+				"repo": "git@github.com:Screatch/gc-app-task.git",
+				"branch": "master"
+			},
+			"database": {
+				"name": "development",
+				"adapter": "postgresql",
+				"pool": 30,
+				"host": "localhost",
+				"encoding": "utf-8",
+				"database": "database_name",
+				"username": "postgres",
+				"password": "password"
+			}
+		},
+		"secrets": {
+			"secret": "1F12aA6f2VOy7n0qMa13523HJ35tjKJejkh%Jeg1tGe4V",
+			"secret_key_base": "G23Jns5GvJlPkGn27VasAAsF1BzTbdfwtHSgl"
+		},
+		"unicorn": {
+			"worker_processes": 4,
+			"timeout": 240
+		},
+		"nginx": {
+			"ssl": {
+				"enabled": true
+			}
+		}
+	},
+	"symlinks": {
+		"bin": "bin",
+		"log": "log",
+		"pids": "tmp/pids",
+		"sockets": "tmp/sockets",
+		"cache": "tmp/cache",
+		"vendor/bundle": "vendor/bundle",
+		"system": "public/system",
+		"assets": "public/assets",
+		"uploads": "public/uploads"
+	},
+	"symlinks_before_migrate": {
+		"config/database.yml": "config/database.yml"
+	},
+	"default_attributes": {},
+	"run_list": [
+		"recipe[base]",
+		"recipe[monit]",
+		"recipe[nginx]"
+	]
 }

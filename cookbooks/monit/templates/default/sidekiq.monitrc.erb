@@ -1,0 +1,11 @@
+<% (node['monit']['sidekiq_workers'] || 1).times do |num| %>
+check process sidekiq_<%= @application %>_<%= num %>
+  with pidfile <%= @deploy_to %>/shared/pids/sidekiq_<%= num %>.pid
+  start program = "/usr/bin/sudo -u deploy bash -c 'cd <%= @deploy_to %>/current && bundle exec sidekiq -C <%= @deploy_to %>/current/config/sidekiq.yml --index <%= num %> -P <%= @deploy_to %>/shared/pids/sidekiq_<%= num %>.pid -e <%= node['rails_env'] %> -L <%= @deploy_to %>/shared/log/sidekiq.log --daemon'"
+  stop program = "/usr/bin/sudo -u deploy bash -c 'cd <%= @deploy_to %>/current && bundle exec sidekiqctl stop <%= @deploy_to %>/shared/pids/sidekiq_<%= num %>.pid 10'"
+  if totalmem is greater than 75% for 12 cycles then restart
+  if not exist for 35 cycles then alert
+  if not exist for 2 cycles then start
+  group sidekiq
+  group deployment
+<% end %>

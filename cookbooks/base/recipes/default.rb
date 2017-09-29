@@ -1,103 +1,69 @@
-deploy_dir do
-  path "#{node['deploy_path']}/#{key}"
-  folders node['shared_folders']
-  user node['deploy_user']
-  group node['deploy_group']
+line = "[ -n \"$SSH_CONNECTION\" ] && cd \/vagrant # cd-to-directory"
+file = Chef::Util::FileEdit.new("/home/vagrant/.bashrc")
+file.insert_line_if_no_match(/#{line}/, line)
+file.write_file
+
+%w(
+apt-transport-https
+curl
+git
+htop
+fail2ban
+libssl-dev
+openssl
+vim
+ntp
+gcc
+build-essential
+nodejs
+).each do |pkg|
+  package pkg do
+    action :install
+  end
 end
 
-deploy "#{node['deploy_path']}/#{key}" do
-  repo app_info['git']['repo']
-  user node['deploy_user']
-  group node['deploy_group']
-  branch app_info['git']['branch']
-  # environment app['environment'].to_hash
-  environment "RAILS_ENV" => node['rails_env']
-  migrate app_info['migrate'] || node['migrate']
-  migration_command node['migrate_command']
-  purge_before_symlink node['folders_to_delete']
-  symlinks node['symlinks']
-  symlink_before_migrate node['symlinks_before_migrate']
-  # Before migration run bundle, assets:precompile and manifest backup.
-  before_migrate do
-
-    current_release = release_path
-
-    Rails::Setup.bundle(
-      current_release, node['deploy_user'],
-      "#{node['deploy_path']}/#{key}"
-    )
-
-      template "#{current_release}/config/database.yml" do
-        source "database.yml.erb"
-        mode "0660"
-        owner node['deploy_user']
-        group node['deploy_group']
-        variables(
-          :database => node['database']
-        )
-    end
-
-    # Create secrets yml
-    template "#{node['deploy_path']}/#{key}/shared/config/secrets.yml" do
-      cookbook "rails"
-      source "secrets.yml.erb"
-      mode "0660"
-      owner node['deploy_user']
-      group node['deploy_group']
-      variables(
-        :secrets => app_info['secrets'],
-        :environment => node['rails_env']
-      )
-      only_if do
-        app_info['secrets']
-      end
-    end
-
-    if node.recipe?('rails::unicorn')
-
-      # Unicorn config
-      app_unicorn_settings = app_info['unicorn'] || {}
-      unicorn_settings = node['unicorn'].merge(app_unicorn_settings)
-
-      template "#{node['deploy_path']}/#{key}/shared/config/unicorn.rb" do
-        cookbook 'unicorn'
-        mode '0644'
-        owner node['deploy_user']
-        group node['deploy_group']
-        source "unicorn.conf.erb"
-
-        variables(
-          :app => key,
-          :unicorn_settings => unicorn_settings
-        )
-      end
-    end
-
-  end
-
-  before_restart do
-    current_release = release_path
-
-    Rails::Setup.assets_precompile(
-      current_release, node['deploy_user'], node['rails_env']
-    )
-    Rails::Setup.manifest_backup(current_release, node['deploy_user'])
-  end
-
-  # Restart using monit, requires root
-  restart do
-    execute "Restarting #{key}" do
-      user 'root'
-      command node['restart_command']
-    end
-  end
-
-  action :deploy
+cookbook_file "/home/vagrant/.ssh/config" do
+  source 'ssh.config'
+  owner 'vagrant'
+  group 'vagrant'
+  mode '0600'
 end
 
-unicorn_app do
-  appname key
-  appinfo app_info
-  deploy_to "#{node['deploy_path']}/#{key}"
-  domains app_info['domains']
+cookbook_file "/root/.gemrc" do
+  source 'gemrc'
+  owner 'root'
+  group 'root'
+  mode '0644'
+end
+
+
+# Periodic tasks
+# Install security-updates automatically every day
+file '/etc/apt/apt.conf.d/10periodic' do
+  owner 'root'
+  group 'root'
+  mode '0644'
+  content <<-EOF
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Download-Upgradeable-Packages "1";
+APT::Periodic::AutocleanInterval "7";
+APT::Periodic::Unattended-Upgrade "1";
+  EOF
+end
+
+# Create deploy user and deploy group
+group node['deploy_group'] do
+  action :create
+  name node['deploy_group']
+  gid 1337
+end
+
+user node['deploy_user'] do
+  action :create
+  comment "deploy user"
+  gid node['deploy_group']
+  home node['deploy_home']
+  manage_home true
+  shell '/bin/bash'
+  uid 31337
 end
