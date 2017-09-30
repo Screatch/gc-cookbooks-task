@@ -1,8 +1,3 @@
-line = "[ -n \"$SSH_CONNECTION\" ] && cd \/vagrant # cd-to-directory"
-file = Chef::Util::FileEdit.new("/home/vagrant/.bashrc")
-file.insert_line_if_no_match(/#{line}/, line)
-file.write_file
-
 %w(
 apt-transport-https
 curl
