@@ -50,7 +50,7 @@ deploy "#{node['deploy_path']}/#{app_name}" do
 
     bash "run bundle install in app directory" do
       cwd File.join(current_release)
-      code "sudo bundle install --deployment"
+      code "bundle install --deployment"
     end
 
     template "#{node['deploy_path']}/#{app_name}/shared/config/database.yml" do
