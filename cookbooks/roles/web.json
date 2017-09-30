@@ -1,0 +1,28 @@
+{
+	"name": "web",
+	"chef_type": "role",
+	"json_class": "Chef::Role",
+	"description": "web instance, for production running instance",
+	"symlinks": {
+		"bin": "bin",
+		"log": "log",
+		"pids": "tmp/pids",
+		"sockets": "tmp/sockets",
+		"cache": "tmp/cache",
+		"vendor/bundle": "vendor/bundle",
+		"system": "public/system",
+		"assets": "public/assets",
+		"uploads": "public/uploads"
+	},
+	"symlinks_before_migrate": {
+		"config/database.yml": "config/database.yml"
+	},
+	"default_attributes": {},
+	"run_list": [
+		"recipe[base]",
+		"recipe[monit]",
+		"recipe[nginx]",
+		"recipe[ruby]",
+		"recipe[rails::deploy]"
+	]
+}
