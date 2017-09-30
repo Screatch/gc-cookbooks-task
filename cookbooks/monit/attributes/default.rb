@@ -12,9 +12,6 @@ default['monit']['start_delay'] = 0
 # How frequently the monit daemon polls for changes.
 default['monit']['polling_frequency'] = 10
 
-# Enable emails for internal monit alerts
-default['monit']['mail_alerts'] = true
-
 # Only alert on specific events
 default['monit']['alert_onlyif_events'] = []
 
@@ -36,9 +33,6 @@ default['monit']['use_syslog'] = false
 # If not using syslog, the log file that monit will use.
 default['monit']['logfile'] = '/var/log/monit.log'
 
-# Email address that will be notified of events.
-default['monit']['alert_email'] = 'root@localhost'
-
 # Enable the web interface and define credentials.
 default['monit']['web_interface'] = {
     enable:  true,
@@ -46,7 +40,6 @@ default['monit']['web_interface'] = {
     address: 'localhost',
     allow:   ['localhost', 'admin:b1gbr0th3r']
 }
-
 
 default['monit']['main_config_path'] = '/etc/monit/monitrc'
 default['monit']['includes_dir'] = '/etc/monit/conf.d'

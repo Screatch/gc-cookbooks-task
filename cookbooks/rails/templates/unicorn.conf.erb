@@ -1,0 +1,57 @@
+worker_processes <%= @unicorn_settings['worker_processes'] %>
+
+user "<%= node['deploy_user'] %>"
+
+working_directory "<%= "#{node['deploy_path']}/#{@app}" %>/current"
+
+listen "<%= "#{node['deploy_path']}/#{@app}" %>/shared/sockets/unicorn.socket",
+       :backlog => <%= @unicorn_settings['backlog'] %>,
+       :tcp_nodelay => <%= @unicorn_settings['tcp_nodelay'] %>, :tcp_nopush => <%= @unicorn_settings['tcp_nopush'] %>, :tries => <%= @unicorn_settings['tries'] %>, :delay => <%= @unicorn_settings['delay'] %>, :accept_filter => <%= @unicorn_settings['accept_filter'].inspect %>
+
+timeout <%= @unicorn_settings['timeout'] %>
+
+pid "<%= "#{node['deploy_path']}/#{@app}"%>/shared/pids/unicorn.pid"
+
+stderr_path "<%= "#{node['deploy_path']}/#{@app}"%>/shared/log/unicorn.stderr.log"
+stdout_path "<%= "#{node['deploy_path']}/#{@app}"%>/shared/log/unicorn.stdout.log"
+
+preload_app <%= @unicorn_settings['preload_app'] %>
+GC.copy_on_write_friendly = true if GC.respond_to?(:copy_on_write_friendly=)
+
+# ensure Unicorn doesn't use a stale Gemfile when restarting
+# more info: https://willj.net/2011/08/02/fixing-the-gemfile-not-found-bundlergemfilenotfound-error/
+before_exec do |server|
+  ENV['BUNDLE_GEMFILE'] = "<%= "#{node['deploy_path']}/#{@app}" %>/current/Gemfile"
+end
+
+before_fork do |server, worker|
+  # the following is highly recomended for Rails + "preload_app true"
+  # as there's no need for the master process to hold a connection
+  if defined?(ActiveRecord::Base)
+    ActiveRecord::Base.connection.disconnect!
+  end
+
+  # Before forking, kill the master process that belongs to the .oldbin PID.
+  # This enables 0 downtime deploys.
+  old_pid = "<%= "#{node['deploy_path']}/#{@app}"%>/shared/pids/unicorn.pid.oldbin"
+  if File.exists?(old_pid) && server.pid != old_pid
+    begin
+      sig = (worker.nr + 1) >= server.worker_processes ? :QUIT : :TTOU
+      Process.kill(sig, File.read(old_pid).to_i)
+    rescue Errno::ENOENT, Errno::ESRCH
+      # someone else did our job for us
+    end
+  end
+end
+
+after_fork do |server, worker|
+  # the following is *required* for Rails + "preload_app true",
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.establish_connection
+
+  defined?(Rails) and Rails.cache.respond_to?(:reconnect) and
+    Rails.cache.reconnect
+
+  child_pid = server.config[:pid].sub('.pid', ".#{worker.nr}.pid")
+  system("echo #{Process.pid} > #{child_pid}")
+end

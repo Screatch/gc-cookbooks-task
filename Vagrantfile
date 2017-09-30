@@ -5,7 +5,7 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.ssh.forward_agent = true
 
-  config.vm.box = "bento/debian-8.6"
+  config.vm.box = "bento/ubuntu-16.04"
   config.vm.network "private_network", ip: "192.168.1.120"
   config.vm.synced_folder ".", "/vagrant"
 

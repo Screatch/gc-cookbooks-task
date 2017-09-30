@@ -32,6 +32,5 @@ default['symlinks_before_migrate'] = {
   'config/database.yml' => 'config/database.yml',
   'config/secrets.yml' => 'config/secrets.yml',
   'config/settings.yml' => 'config/settings.yml',
-  'config/unicorn.rb' => 'config/unicorn.rb',
-  'config/mongoid.yml' => 'config/mongoid.yml'
+  'config/unicorn.rb' => 'config/unicorn.rb'
 }

@@ -1,3 +1,6 @@
+package 'postgresql-client'
+package 'libpq-dev'
+
 deploy_dir do
   path "#{node['deploy_path']}/#{node['app_settings']['name']}"
   folders node['shared_folders']
@@ -11,7 +14,7 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
   group node['deploy_group']
   branch node['app_settings']['git']['branch']
   environment "RAILS_ENV" => node['rails_env']
-  migrate node['app_settings']['migrate'] || node['migrate']
+  migrate node['migrate']
   migration_command node['migrate_command']
   purge_before_symlink node['folders_to_delete']
   symlinks node['symlinks']
@@ -20,19 +23,19 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
 
     current_release = release_path
 
-    Rails::Setup.bundle(
-      current_release, node['deploy_user'],
-      "#{node['deploy_path']}/#{node['app_settings']['name']}"
-    )
+    bash "run bundle install in app directory" do
+      cwd File.join(current_release)
+      code "bundle install --deployment"
+    end
 
-      template "#{current_release}/config/database.yml" do
-        source "database.yml.erb"
-        mode "0660"
-        owner node['deploy_user']
-        group node['deploy_group']
-        variables(
-          :database => node['database']
-        )
+    template "#{node['deploy_path']}/#{node['app_settings']['name']}/shared/config/database.yml" do
+      source "database.yml.erb"
+      mode "0660"
+      owner node['deploy_user']
+      group node['deploy_group']
+      variables(
+        :database => node['app_settings']['database']
+      )
     end
 
     # Create secrets yml
@@ -52,7 +55,6 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
     end
 
     template "#{node['deploy_path']}/#{node['app_settings']['name']}/shared/config/unicorn.rb" do
-      cookbook 'unicorn'
       mode '0644'
       owner node['deploy_user']
       group node['deploy_group']
@@ -63,6 +65,7 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
         :unicorn_settings => node['unicorn']
       )
     end
+  end  
 
   before_restart do
     current_release = release_path
@@ -91,7 +94,7 @@ end
 
 # Nginx conf files for each application
 template 'nginx.conf' do
-  path "/etc/nginx/sites-enabled/#{params[:appname]}.conf"
+  path "/etc/nginx/sites-enabled/#{node['app_settings']['name']}.conf"
   source 'app.conf.erb'
   cookbook 'nginx'
   owner node['deploy_user']

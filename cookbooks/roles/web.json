@@ -21,11 +21,11 @@
 				"name": "development",
 				"adapter": "postgresql",
 				"pool": 30,
-				"host": "192.168.0.16",
+				"host": "terraform-002bd4a6acbf93b885c51ee513.cxtklnkq02tz.eu-west-1.rds.amazonaws.com",
 				"encoding": "utf-8",
 				"database": "grabcad_development",
-				"username": "vitaliraikov",
-				"password": ""
+				"username": "grabcad",
+				"password": "verysecurepostgresqlpassword"
 			},
 			"secrets": {
 				"secret": "1F12aA6f2VOy7n0qMa13523HJ35tjKJejkh%Jeg1tGe4V",

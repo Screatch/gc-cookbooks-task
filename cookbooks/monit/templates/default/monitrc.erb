@@ -26,42 +26,6 @@ set idfile <%= node['monit']['idfile'] %>
 set statefile <%= node['monit']['statefile'] %>
 <% end %>
 
-<% if node['monit']['mail_alerts'] %>
-# Mail alerts
-<% alert_email_map = node['monit']['alert_email'] %>
-<% unless alert_email_map.is_a? Hash %>
-  <% alert_email_map = { alert_email_map => { 'onlyon_events' => node['monit']['alert_onlyif_events'], 'ignore_events' => node['monit']['alert_ignore_events'] } } %>
-<% end %>
-<% alert_email_map.each do |alert_emails, events_map| %>
-  <% onlyon = events_map['onlyon_events'].join(', ') rescue '' %>
-  <% ignore = events_map['ignore_events'].join(', ') rescue '' %>
-  <% (alert_emails.is_a?(Array) ? alert_emails : alert_emails.split(/[, ]+/)).each do |alert_email| %>
-set alert <%= alert_email %> <%= onlyon.empty? ? '' : "on { #{onlyon} }" %> <%= ignore.empty? ? '' : "but not on { #{ignore} }" %>
-  <% end %>
-<% end %>
-<% end %>
-
-set mailserver <%= node['monit']['mail']['hostname'] %> port <%= node['monit']['mail']['port'] %>
-  <% if node['monit']['mail']['username'] -%>
-  username '<%= node['monit']['mail']['username'] %>'
-  <% end -%>
-  <% if node['monit']['mail']['password'] -%>
-  password '<%= node['monit']['mail']['password'] %>'
-  <% end -%>
-<% if node['monit']['mail']['security'] -%>
-    using <%= node['monit']['mail']['security'] %>
-<% end -%>
-  with timeout <%= node['monit']['mail']['timeout'] %> seconds
-<% if node['monit']['mail']['using_hostname'] -%>
-    using hostname <%= node['monit']['mail']['using_hostname'] %>
-<% end -%>
-
-set mail-format {
-  from: <%= node['monit']['mail']['from'] %>
-  subject: <%= node['monit']['mail']['subject'] %>
-  message: <%= node['monit']['mail']['message'] %>
-}
-
 <% if node['monit']['web_interface']['enable'] %>
 # Web interface
 set httpd port <%= node['monit']['web_interface']['port'] %>
