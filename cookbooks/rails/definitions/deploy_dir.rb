@@ -4,7 +4,7 @@ define :deploy_dir do
   directory "#{params[:path]}/shared" do
     group params[:group]
     owner params[:user]
-    mode 0770
+    mode 0755
     action :create
     recursive true
   end
