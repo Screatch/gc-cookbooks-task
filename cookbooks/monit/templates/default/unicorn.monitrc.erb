@@ -8,7 +8,7 @@ check process unicorn_<%= @appname %> with pidfile /var/www/<%= @appname %>/shar
   group unicorn
   group deployment
 
-<% (0...node['app_settings']['worker_processes']).each do |worker_num| %>
+<% (0...node['app_settings']['unicorn']['worker_processes']).each do |worker_num| %>
 check process unicorn_<%= @appname %>_worker_<%= worker_num %>
   with pidfile /var/www/<%= @appname %>/shared/pids/unicorn.<%= worker_num -%>.pid
   start program = "/bin/cat /dev/null"
