@@ -23,11 +23,6 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
 
     current_release = release_path
 
-    bash "chmod bundle config" do
-      cwd File.join(current_release)
-      code "sudo chmod 666 .bundle/config"
-    end
-
     bash "run bundle install in app directory" do
       cwd File.join(current_release)
       code "bundle install --deployment"
@@ -75,6 +70,10 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
   before_restart do
     current_release = release_path
 
+    bash "chmod bundle config" do
+      cwd File.join(current_release)
+      code "sudo chmod 666 .bundle/config"
+    end
 
     bash "run asset precompile" do
       cwd File.join(current_release)
