@@ -23,7 +23,7 @@
 				"pool": 30,
 				"host": "terraform-002bd4a6acbf93b885c51ee513.cxtklnkq02tz.eu-west-1.rds.amazonaws.com",
 				"encoding": "utf-8",
-				"database": "grabcad_development",
+				"database": "grabcad_production",
 				"username": "grabcad",
 				"password": "verysecurepostgresqlpassword"
 			},
