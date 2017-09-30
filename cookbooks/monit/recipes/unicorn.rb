@@ -1,13 +1,11 @@
 include_recipe 'monit'
 
-node['apps'].each do |key, app_info|
-  create_monitrc "unicorn_#{key}" do
-    variables(
-      :appname => key,
-      :appinfo => app_info
-    )
-    template 'unicorn.monitrc.erb'
-    time :immediately
-  end
+create_monitrc "unicorn_#{node['app_info']['name']}" do
+	variables(
+	  :appname => key,
+	  :appinfo => app_info
+	)
+	template 'unicorn.monitrc.erb'
+	time :immediately
 end
 
