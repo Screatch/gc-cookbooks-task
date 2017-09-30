@@ -73,7 +73,7 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
 
     bash "run asset precompile" do
       cwd File.join(current_release)
-      code "rake assets:precompile"
+      code "bundle exec rake assets:precompile"
     end
 
   end
