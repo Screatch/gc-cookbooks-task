@@ -17,45 +17,44 @@
 	"symlinks_before_migrate": {
 		"config/database.yml": "config/database.yml"
 	},
-	"default_attributes": {
-		"box_name": "web",
-		"ruby": {
-			"version": "2.4"
+	"box_name": "web",
+	"ruby": {
+		"version": "2.4"
+	},
+	"rails_env": "production",
+	"app_settings": {
+		"name": "test-app",
+		"deploy_user": "deploy",
+		"deploy_group": "deploy",
+		"git": {
+			"repo": "https://github.com/Screatch/gc-app-task.git",
+			"branch": "master"
 		},
-		"rails_env": "production",
-		"app_settings": {
-			"name": "test-app",
-			"deploy_user": "deploy",
-			"deploy_group": "deploy",
-			"git": {
-				"repo": "https://github.com/Screatch/gc-app-task.git",
-				"branch": "master"
-			},
-			"database": {
-				"name": "development",
-				"adapter": "postgresql",
-				"pool": 30,
-				"host": "terraform-002bd4a6acbf93b885c51ee513.cxtklnkq02tz.eu-west-1.rds.amazonaws.com",
-				"encoding": "utf-8",
-				"database": "grabcad_production",
-				"username": "grabcad",
-				"password": "verysecurepostgresqlpassword"
-			},
-			"secrets": {
-				"secret": "1F12aA6f2VOy7n0qMa13523HJ35tjKJejkh%Jeg1tGe4V",
-				"secret_key_base": "G23Jns5GvJlPkGn27VasAAsF1BzTbdfwtHSgl"
-			}
+		"database": {
+			"name": "production",
+			"adapter": "postgresql",
+			"pool": 30,
+			"host": "terraform-002bd4a6acbf93b885c51ee513.cxtklnkq02tz.eu-west-1.rds.amazonaws.com",
+			"encoding": "utf-8",
+			"database": "grabcad_production",
+			"username": "grabcad",
+			"password": "verysecurepostgresqlpassword"
 		},
-		"unicorn": {
-			"worker_processes": 4,
-			"timeout": 240
-		},
-		"nginx": {
-			"ssl": {
-				"enabled": true
-			}
+		"secrets": {
+			"secret": "1F12aA6f2VOy7n0qMa13523HJ35tjKJejkh%Jeg1tGe4V",
+			"secret_key_base": "G23Jns5GvJlPkGn27VasAAsF1BzTbdfwtHSgl"
 		}
-	},	"run_list": [
+	},
+	"unicorn": {
+		"worker_processes": 4,
+		"timeout": 240
+	},
+	"nginx": {
+		"ssl": {
+			"enabled": true
+		}
+	},
+	"run_list": [
 		"recipe[base]",
 		"recipe[monit]",
 		"recipe[nginx]",
