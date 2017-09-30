@@ -1,14 +1,14 @@
 {
-	"name": "vagrant",
+	"name": "web",
 	"chef_type": "role",
 	"json_class": "Chef::Role",
-	"description": "vagrant instance, responsible for deploying a vm for a developer",
+	"description": "web instance, for production running instance",
 	"override_attributes": {
-		"box_name": "vagrant",
+		"box_name": "web",
 		"ruby": {
 			"version": "2.4"
 		},
-		"rails_env": "development",
+		"rails_env": "production",
 		"app_settings": {
 			"name": "test-app",
 			"deploy_user": "deploy",
