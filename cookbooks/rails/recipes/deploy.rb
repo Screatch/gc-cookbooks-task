@@ -70,10 +70,12 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
   before_restart do
     current_release = release_path
 
-    Rails::Setup.assets_precompile(
-      current_release, node['deploy_user'], node['rails_env']
-    )
-    Rails::Setup.manifest_backup(current_release, node['deploy_user'])
+
+    bash "run asset precompile" do
+      cwd File.join(current_release)
+      code "rake assets:precompile"
+    end
+
   end
 
   # Restart using monit, requires root
