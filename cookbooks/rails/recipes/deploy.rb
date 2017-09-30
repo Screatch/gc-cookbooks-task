@@ -11,7 +11,7 @@ end
 
 template "unicorn_#{app_name}" do
   path "/etc/init.d/unicorn_#{app_name}"
-  source 'unicorn.erb'
+  source 'unicorn.init.erb'
   owner 'root'
   group 'root'
   mode 0755
