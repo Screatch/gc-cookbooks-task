@@ -1,14 +1,39 @@
 package 'postgresql-client'
 package 'libpq-dev'
 
+app_name = node['app_settings']['name']
+
+# Create unicorn 
+service "unicorn_#{app_name}" do
+  supports :restart => true, :start => true, :stop => true, :reload => true
+  action :nothing
+end
+
+template "unicorn_#{app_name}" do
+  path "/etc/init.d/unicorn_#{app_name}"
+  source 'unicorn.erb'
+  owner 'root'
+  group 'root'
+  mode 0755
+  variables(
+    {
+      :name => app_name,
+      :path => "#{node['deploy_path']}/#{app_name}",
+      :rails_env => node['rails_env'],
+      :deploy_user => node['deploy_user']
+    }
+  )
+end
+
+
 deploy_dir do
-  path "#{node['deploy_path']}/#{node['app_settings']['name']}"
+  path "#{node['deploy_path']}/#{app_name}"
   folders node['shared_folders']
   user node['deploy_user']
   group node['deploy_group']
 end
 
-deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
+deploy "#{node['deploy_path']}/#{app_name}" do
   repo node['app_settings']['git']['repo']
   user node['deploy_user']
   group node['deploy_group']
@@ -28,7 +53,7 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
       code "sudo bundle install --deployment"
     end
 
-    template "#{node['deploy_path']}/#{node['app_settings']['name']}/shared/config/database.yml" do
+    template "#{node['deploy_path']}/#{app_name}/shared/config/database.yml" do
       source "database.yml.erb"
       mode "0660"
       owner node['deploy_user']
@@ -39,7 +64,7 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
     end
 
     # Create secrets yml
-    template "#{node['deploy_path']}/#{node['app_settings']['name']}/shared/config/secrets.yml" do
+    template "#{node['deploy_path']}/#{app_name}/shared/config/secrets.yml" do
       cookbook "rails"
       source "secrets.yml.erb"
       mode "0660"
@@ -54,14 +79,14 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
       end
     end
 
-    template "#{node['deploy_path']}/#{node['app_settings']['name']}/shared/config/unicorn.rb" do
+    template "#{node['deploy_path']}/#{app_name}/shared/config/unicorn.rb" do
       mode '0644'
       owner node['deploy_user']
       group node['deploy_group']
       source "unicorn.conf.erb"
 
       variables(
-        :app => node['app_settings']['name'],
+        :app => app_name,
         :unicorn_settings => node['unicorn']
       )
     end
@@ -84,7 +109,7 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
 
   # Restart using monit, requires root
   restart do
-    execute "Restarting #{node['app_settings']['name']}" do
+    execute "Restarting #{app_name}" do
       user 'root'
       command node['restart_command']
     end
@@ -100,15 +125,15 @@ end
 
 # Nginx conf files for each application
 template 'nginx.conf' do
-  path "/etc/nginx/sites-enabled/#{node['app_settings']['name']}.conf"
+  path "/etc/nginx/sites-enabled/#{app_name}.conf"
   source 'app.conf.erb'
   cookbook 'nginx'
   owner node['deploy_user']
   group node['deploy_group']
   mode 0644
   variables(
-    :appname => node['app_settings']['name'],
-    :deploy_to => "#{node['deploy_path']}/#{node['app_settings']['name']}",
+    :appname => app_name,
+    :deploy_to => "#{node['deploy_path']}/#{app_name}",
     :domains => node['app_settings']['domains'],
     :ssl => true
   )

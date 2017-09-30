@@ -1,0 +1,89 @@
+#!/bin/sh
+
+set -e
+
+# Feel free to change any of the following variables for your app:
+TIMEOUT=40
+
+APP_ROOT=<%= @path %>
+APP_NAME=<%= @name %>
+USER="<%= @deploy_user %>"
+
+PID="$APP_ROOT/shared/pids/unicorn.pid"
+
+ENVIRONMENT=<%= @rails_env %>
+
+CMD="cd $APP_ROOT/current; bundle exec unicorn -E $ENVIRONMENT -D -c config/unicorn.rb"
+PID="$APP_ROOT/shared/pids/unicorn.pid"
+OLD_PID="$PID.oldbin"
+
+action="$1"
+set -u
+
+cd $APP_ROOT || exit 1
+
+sig () {
+  test -s "$PID" && kill -$1 `cat $PID`
+}
+
+oldsig () {
+  test -s $OLD_PID && kill -$1 `cat $OLD_PID`
+}
+
+workersig () {
+  workerpid="$APP_ROOT/shared/pids/unicorn.$2.pid"
+  test -s "$workerpid" && kill -$1 `cat $workerpid`
+}
+
+case $action in
+start)
+  sig 0 && echo >&2 "Already running" && exit 0
+  su - $USER -c "$CMD"
+  ;;
+stop)
+  sig QUIT && exit 0
+  echo >&2 "Not running"
+  ;;
+force-stop)
+  sig TERM && exit 0
+  echo >&2 "Not running"
+  ;;
+restart|reload)
+  sig USR2 && echo reloaded OK && exit 0
+  echo >&2 "Couldn't reload, starting '$CMD' instead"
+  su - $USER -c "$CMD"
+  ;;
+upgrade)
+  if sig USR2 && sleep 20 && sig 0 && oldsig QUIT
+  then
+    n=$TIMEOUT
+    while test -s $OLD_PID && test $n -ge 0
+    do
+      printf '.' && sleep 1 && n=$(( $n - 1 ))
+    done
+    echo
+
+    if test $n -lt 0 && test -s $OLD_PID
+    then
+      echo >&2 "$OLD_PID still exists after $TIMEOUT seconds"
+      exit 1
+    fi
+    exit 0
+  fi
+  echo >&2 "Couldn't upgrade, starting '$CMD' instead"
+  su - $USER -c "$CMD"
+  ;;
+kill_worker)
+  workersig QUIT $2 && exit 0
+  echo >&2 "Worker not running"
+  ;;
+
+reopen-logs)
+  sig USR1
+  ;;
+*)
+  echo >&2 "Usage: $0 <start|stop|restart|upgrade|force-stop|reopen-logs>"
+  exit 1
+  ;;
+esac
+
