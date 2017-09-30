@@ -1,39 +1,67 @@
 {
-	"box_name": "web",
-	"ruby": {
-		"version": "2.4"
-	},
-	"rails_env": "production",
-	"app_settings": {
-		"name": "test-app",
-		"deploy_user": "deploy",
-		"deploy_group": "deploy",
-		"git": {
-			"repo": "https://github.com/Screatch/gc-app-task.git",
-			"branch": "master"
+	"name": "web",
+	"chef_type": "role",
+	"json_class": "Chef::Role",
+	"description": "web instance, for production running instance",
+	"override_attributes": {
+		"box_name": "web",
+		"ruby": {
+			"version": "2.4"
 		},
-		"database": {
-			"name": "development",
-			"adapter": "postgresql",
-			"pool": 30,
-			"host": "terraform-002bd4a6acbf93b885c51ee513.cxtklnkq02tz.eu-west-1.rds.amazonaws.com",
-			"encoding": "utf-8",
-			"database": "grabcad_production",
-			"username": "grabcad",
-			"password": "verysecurepostgresqlpassword"
+		"rails_env": "production",
+		"app_settings": {
+			"name": "test-app",
+			"deploy_user": "deploy",
+			"deploy_group": "deploy",
+			"git": {
+				"repo": "https://github.com/Screatch/gc-app-task.git",
+				"branch": "master"
+			},
+			"database": {
+				"name": "development",
+				"adapter": "postgresql",
+				"pool": 30,
+				"host": "terraform-002bd4a6acbf93b885c51ee513.cxtklnkq02tz.eu-west-1.rds.amazonaws.com",
+				"encoding": "utf-8",
+				"database": "grabcad_production",
+				"username": "grabcad",
+				"password": "verysecurepostgresqlpassword"
+			},
+			"secrets": {
+				"secret": "1F12aA6f2VOy7n0qMa13523HJ35tjKJejkh%Jeg1tGe4V",
+				"secret_key_base": "G23Jns5GvJlPkGn27VasAAsF1BzTbdfwtHSgl"
+			}
 		},
-		"secrets": {
-			"secret": "1F12aA6f2VOy7n0qMa13523HJ35tjKJejkh%Jeg1tGe4V",
-			"secret_key_base": "G23Jns5GvJlPkGn27VasAAsF1BzTbdfwtHSgl"
+		"unicorn": {
+			"worker_processes": 4,
+			"timeout": 240
+		},
+		"nginx": {
+			"ssl": {
+				"enabled": true
+			}
 		}
 	},
-	"unicorn": {
-		"worker_processes": 4,
-		"timeout": 240
+	"symlinks": {
+		"bin": "bin",
+		"log": "log",
+		"pids": "tmp/pids",
+		"sockets": "tmp/sockets",
+		"cache": "tmp/cache",
+		"vendor/bundle": "vendor/bundle",
+		"system": "public/system",
+		"assets": "public/assets",
+		"uploads": "public/uploads"
 	},
-	"nginx": {
-		"ssl": {
-			"enabled": true
-		}
-	}
+	"symlinks_before_migrate": {
+		"config/database.yml": "config/database.yml"
+	},
+	"default_attributes": {},
+	"run_list": [
+		"recipe[base]",
+		"recipe[monit]",
+		"recipe[nginx]",
+		"recipe[ruby]",
+		"recipe[rails::deploy]"
+	]
 }
