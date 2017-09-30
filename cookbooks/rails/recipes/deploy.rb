@@ -77,7 +77,7 @@ deploy "#{node['deploy_path']}/#{node['app_settings']['name']}" do
 
     bash "run asset precompile" do
       cwd File.join(current_release)
-      code "bundle exec rake assets:precompile"
+      code "RAILS_ENV=#{node['rails_env']} bundle exec rake assets:precompile"
     end
 
   end
