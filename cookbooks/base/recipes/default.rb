@@ -17,13 +17,6 @@ nodejs
   end
 end
 
-cookbook_file "/home/vagrant/.ssh/config" do
-  source 'ssh.config'
-  owner 'vagrant'
-  group 'vagrant'
-  mode '0600'
-end
-
 cookbook_file "/root/.gemrc" do
   source 'gemrc'
   owner 'root'
