@@ -50,6 +50,8 @@ deploy "#{node['deploy_path']}/#{app_name}" do
 
     bash "run bundle install in app directory" do
       cwd File.join(current_release)
+      user node['deploy_user']
+      group node['deploy_group']
       code "bundle install --deployment"
     end
 
@@ -95,12 +97,9 @@ deploy "#{node['deploy_path']}/#{app_name}" do
   before_restart do
     current_release = release_path
 
-    bash "chmod bundle config" do
-      cwd File.join(current_release)
-      code "sudo chmod 666 .bundle/config"
-    end
-
     bash "run asset precompile" do
+      user node['deploy_user']
+      group node['deploy_group']
       cwd File.join(current_release)
       code "RAILS_ENV=#{node['rails_env']} bundle exec rake assets:precompile"
     end
