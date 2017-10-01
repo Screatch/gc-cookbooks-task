@@ -54,13 +54,6 @@ deploy "#{node['deploy_path']}/#{app_name}" do
       cwd release_path
     end
 
-    bash "run bundle install in app directory" do
-      cwd File.join(current_release)
-      user node['deploy_user']
-      group node['deploy_group']
-      code "bundle install --deployment"
-    end
-
     template "#{node['deploy_path']}/#{app_name}/shared/config/database.yml" do
       source "database.yml.erb"
       mode "0660"
