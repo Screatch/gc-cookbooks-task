@@ -24,6 +24,7 @@
 	"rails_env": "production",
 	"app_settings": {
 		"name": "test-app",
+		"domains": ["localhost"],
 		"deploy_user": "deploy",
 		"deploy_group": "deploy",
 		"git": {
