@@ -96,7 +96,7 @@ deploy "#{node['deploy_path']}/#{app_name}" do
   before_restart do
     current_release = release_path
 
-    execute "RAILS_ENV=#{node['rails_env'} bundle exec rake assets:precompile && rm -rf #{release_path}/tmp/cache" do
+    execute "RAILS_ENV=#{node['rails_env']} bundle exec rake assets:precompile && rm -rf #{release_path}/tmp/cache" do
       user node['deploy_user']
       group node['deploy_group']
       cwd File.join(current_release)
