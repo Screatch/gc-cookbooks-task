@@ -35,7 +35,7 @@
 			"name": "production",
 			"adapter": "postgresql",
 			"pool": 30,
-			"host": "terraform-002bd4a6acbf93b885c51ee513.cxtklnkq02tz.eu-west-1.rds.amazonaws.com",
+			"host": "grabcad-test-app.cxtklnkq02tz.eu-west-1.rds.amazonaws.com",
 			"encoding": "utf-8",
 			"database": "grabcad_production",
 			"username": "grabcad",
