@@ -13,10 +13,9 @@ define :deploy_dir do
   params[:folders].each do |dir_name|
     directory_path = "#{params[:path]}/shared/#{dir_name}"
 
-    execute "[ -d #{directory_path} ] || mkdir -p -m 0770 #{directory_path}" do
+    execute "[ -d #{directory_path} ] || mkdir -p -m 0755 #{directory_path}" do
       user params[:user]
       group params[:group]
-      mode 0755
     end
   end
 
