@@ -59,6 +59,7 @@
 		"recipe[base]",
 		"recipe[monit]",
 		"recipe[nginx]",
+		"recipe[monit::nginx]",
 		"recipe[ruby]",
 		"recipe[rails::deploy]"
 	]

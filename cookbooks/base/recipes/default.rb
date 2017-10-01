@@ -1,3 +1,7 @@
+apt_update 'Updating list of packages' do
+  action  :update
+end
+
 %w(
 apt-transport-https
 curl
