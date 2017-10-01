@@ -17,12 +17,12 @@ nodejs
   end
 end
 
-cookbook_file "/root/.gemrc" do
-  source 'gemrc'
-  owner 'root'
-  group 'root'
-  mode '0644'
-end
+# cookbook_file "/root/.gemrc" do
+#   source 'gemrc'
+#   owner 'root'
+#   group 'root'
+#   mode '0644'
+# end
 
 
 # Periodic tasks
