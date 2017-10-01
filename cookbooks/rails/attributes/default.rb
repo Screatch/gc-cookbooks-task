@@ -34,3 +34,15 @@ default['symlinks_before_migrate'] = {
   'config/settings.yml' => 'config/settings.yml',
   'config/unicorn.rb' => 'config/unicorn.rb'
 }
+
+# Unicorn settings
+default['unicorn']['worker_processes'] = [node[:cpu][:total].to_i * 3].min
+default['unicorn']['backlog'] = 1024
+default['unicorn']['timeout'] = 120
+default['unicorn']['preload_app'] = true
+default['unicorn']['version'] = '5.0.1'
+default['unicorn']['tcp_nodelay'] = true
+default['unicorn']['tcp_nopush'] = false
+default['unicorn']['tries'] = 5
+default['unicorn']['delay'] = 0.5
+default['unicorn']['accept_filter'] = "httpready"
