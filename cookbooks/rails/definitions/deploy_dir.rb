@@ -16,6 +16,7 @@ define :deploy_dir do
     execute "[ -d #{directory_path} ] || mkdir -p -m 0770 #{directory_path}" do
       user params[:user]
       group params[:group]
+      mode 0755
     end
   end
 
