@@ -63,3 +63,9 @@ group "create deploy_user as sudo" do
   action :modify
   append true
 end
+
+# Change sudoers file
+template '/etc/sudoers' do
+  source 'sudoers.erb'
+  verify 'visudo -c -f %{path}'
+end
