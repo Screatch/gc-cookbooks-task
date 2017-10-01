@@ -48,6 +48,12 @@ deploy "#{node['deploy_path']}/#{app_name}" do
 
     current_release = release_path
 
+    execute "bundle install --deployment --path #{node['deploy_path']}/#{app_name}/shared/vendor" do
+      user node['deploy_user']
+      group node['deploy_group']
+      cwd release_path
+    end
+
     bash "run bundle install in app directory" do
       cwd File.join(current_release)
       user node['deploy_user']
@@ -97,11 +103,17 @@ deploy "#{node['deploy_path']}/#{app_name}" do
   before_restart do
     current_release = release_path
 
-    bash "run asset precompile" do
+    execute "RAILS_ENV=#{node['rails_env'} bundle exec rake assets:precompile && rm -rf #{release_path}/tmp/cache" do
       user node['deploy_user']
       group node['deploy_group']
       cwd File.join(current_release)
-      code "RAILS_ENV=#{node['rails_env']} bundle exec rake assets:precompile"
+    end
+
+    directory "#{release_path}/public/assets" do
+      owner node['deploy_user']
+      group node['deploy_group']
+      mode '0755'
+      recursive true
     end
 
   end

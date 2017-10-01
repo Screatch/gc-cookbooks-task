@@ -22,7 +22,7 @@ default['monit']['alert_ignore_events'] = []
 default['monit']['idfile'] = '/var/.monit.id'
 
 # Where Monit stores Monit state file
-default['monit']['statefile'] = '/var/lib/monit/state'
+default['monit']['statefile'] = '/etc/monit/state'
 
 # Where Monit stores the pid file
 default['monit']['pidfile'] = '/var/run/monit.pid'
