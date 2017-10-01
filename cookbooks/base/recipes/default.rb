@@ -55,3 +55,11 @@ user node['deploy_user'] do
   shell '/bin/bash'
   uid 31337
 end
+
+# Create user as sudo
+group "create deploy_user as sudo" do
+  group_name 'sudo'
+  members node['deploy_user']
+  action :modify
+  append true
+end
